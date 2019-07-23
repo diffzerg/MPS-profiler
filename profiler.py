@@ -1,33 +1,42 @@
-class Profiler.__init__(file_path)
+class Profiler:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.model_class_list = []
+        self.init_args_list = []
+        self.num_instances_list = []
+        self.method_name_list = []
+        self.num_iteration_list = []
+
+    def set_model(model_class, init_args, num_instances, infer_args, method_name, num_iteration):
+        self.model_classes.append(model_class)
+        self.model_class_list.append(init_args)
+        self.init_args_list.append(num_instances)
+        self.num_instances_list.append(infer_args) 
+        self.method_name_list.append(method_name)
+        self.num_iteration_list.append(num_iteration)
+
+    def profile(unit_iteration):
+        multiprocessing.set_start_method("spawn")
+
+    # uses self.filepath to convert csv to excel.    
+    def csv_to_excel():
+        pass
+
+    # set which value should be printed
+    def set_profiler():
+        pass
 
 """
-model_class - the DNN Class
+specification:
+    >
+    method_name (str) - name of the method to run inference
 
-num_instances (int) - number of instances of Model, each initialized in a separate process.
-make sure to set "spawn" as multiprocessing mode
-
-    > multiprocessing.set_start_method("spawn")
-
-init_args (set) - a set of arguments used to initialize the the DNN class like below:
-
-    > model_instance = model_class(*init_args)
-
-"""
-Profiler.set_model(model_class, init_args, num_instances)
-
-
-"""
-method_name (str) - name of the method to run inference
-
-num_iteration (int) - number of iterations to run. when 0, runs forever, if greater than 0, run that many times.
+    num_iteration (int) - number of iterations to run. when 0, runs forever, if greater than 0, run that many times.
 
     > fn = getattr(model, method_name)
     > # some profiling code here
     > fn(*infer_args)
-"""
-Profiler.profile(infer_args, method_name, num_iteration, num_transactions)
 
-"""
 ex:
     > from Tacotron import Tacotron
     > from Profiler import Profiler
@@ -41,5 +50,17 @@ ex:
     > # run inference
     > infer_args = ("hello world", 1)
     > profiler.profile(infer_args, "get_mel", 0)
+    model_class - the DNN Class
 
+    num_instances (int) - number of instances of Model, each initialized in a separate process.
+make sure to set "spawn" as multiprocessing mode
+
+    > multiprocessing.set_start_method("spawn")
+
+    init_args (set) - a set of arguments used to initialize the the DNN class like below:
+
+    > model_instance = model_class(*init_args)
+
+    useful methods:
+    > current_process().name -> get process name
 """
