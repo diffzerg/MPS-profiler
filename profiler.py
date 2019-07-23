@@ -1,32 +1,51 @@
+import multiprocessing as mp
+
 class Profiler:
     def __init__(self, file_path):
         self.file_path = file_path
         self.model_class_list = []
         self.init_args_list = []
         self.num_instances_list = []
+        self.infer_args_list = []
         self.method_name_list = []
         self.num_iteration_list = []
 
-    def set_model(model_class, init_args, num_instances, infer_args, method_name, num_iteration):
-        self.model_classes.append(model_class)
-        self.model_class_list.append(init_args)
-        self.init_args_list.append(num_instances)
-        self.num_instances_list.append(infer_args) 
+    def set_model(self, model_class, init_args, num_instances, infer_args, method_name, num_iteration):
+        self.model_class_list.append(model_class)
+        self.init_args_list.append(init_args)
+        self.num_instances_list.append(num_instances)
+        self.infer_args.append(infer_args) 
         self.method_name_list.append(method_name)
         self.num_iteration_list.append(num_iteration)
 
-    def profile(unit_iteration):
-        multiprocessing.set_start_method("spawn")
+    def profile(self, unit_iteration):
+        mp.set_start_method("spawn")
+        procs = []
+        queue = mp.Queue()
+        
+        for i in range (len(self.model_class_list)):
+            for j in range (self.num_instances_list[i]):
+            p =  Process(target = worker, args = (queue, self.model_class_list[i], self.init_args_list[i], self.method_name_list[i], unit_iteration, self.infer_args_list[i]))
+            procs.append(p)
+            proc.start
+
+
+        for proc in procs:
+            proc.join()
+
+    def worker(Queue, model_class, init_args, method_name, unit_iteration, infer_args):        
+        worker_name = mp.current_process().name
+        model = self.model_class_list[i](*self.init_args_list[i])
 
     # uses self.filepath to convert csv to excel.    
-    def csv_to_excel():
+    def csv_to_excel(self):
         pass
 
     # set which value should be printed
-    def set_profiler():
+    def set_profiler(self):
         pass
 
-"""
+'''
 specification:
     >
     method_name (str) - name of the method to run inference
@@ -63,4 +82,4 @@ make sure to set "spawn" as multiprocessing mode
 
     useful methods:
     > current_process().name -> get process name
-"""
+'''
