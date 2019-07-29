@@ -1,4 +1,7 @@
 import multiprocessing as mp
+import cupy as cp
+import time
+import numpy as np
 
 class Profiler:
     def __init__(self, file_path):
@@ -14,7 +17,7 @@ class Profiler:
         self.model_class_list.append(model_class)
         self.init_args_list.append(init_args)
         self.num_instances_list.append(num_instances)
-        self.infer_args.append(infer_args) 
+        self.infer_args_list.append(infer_args) 
         self.method_name_list.append(method_name)
         self.num_iteration_list.append(num_iteration)
 
@@ -25,17 +28,41 @@ class Profiler:
         
         for i in range (len(self.model_class_list)):
             for j in range (self.num_instances_list[i]):
-            p =  Process(target = worker, args = (queue, self.model_class_list[i], self.init_args_list[i], self.method_name_list[i], unit_iteration, self.infer_args_list[i]))
-            procs.append(p)
-            proc.start
-
+                p =  mp.Process(target = self.worker, args = (queue, self.model_class_list[i], self.init_args_list[i], self.method_name_list[i], unit_iteration, self.infer_args_list[i]), self.num_iteration_list[i])
+                procs.append(p)
+                p.start()
 
         for proc in procs:
             proc.join()
+        
+        file = open(self.file_path, 'w')
+        while queue.empty() = False:
+            file.write(queue.pop())
+            file.write("\n")
 
-    def worker(Queue, model_class, init_args, method_name, unit_iteration, infer_args):        
+
+    def worker(self, Queue, model_class, init_args, method_name, unit_iteration, infer_args, num_iteration):        
         worker_name = mp.current_process().name
-        model = self.model_class_list[i](*self.init_args_list[i])
+        model = model_class(*init_args)
+        
+        function = getattr(model, method_name)
+        time_list = []
+
+        for i in range (num_iteration):
+            if ((i + 1) % unit_iteration == 0):
+                sum_string = str(model_class) + " " + str(worker_name) + " " + str(i + 1) + " " + str(np.mean(time_list))  + " " + str(np.var(time_list))  
+                Queue.put(sum_string)
+                time_list.clear()
+            start_time = time.time()   
+            #run inference code
+            function_result = function(*infer_args)
+            #synchronize Device
+            cupy.cuda.Device(device=0).synchronize()
+            end_time = time.time() - start_time
+            time_list.append(end_time)
+            
+
+    
 
     # uses self.filepath to convert csv to excel.    
     def csv_to_excel(self):
