@@ -28,16 +28,17 @@ class Profiler:
         
         for i in range (len(self.model_class_list)):
             for j in range (self.num_instances_list[i]):
-                p =  mp.Process(target = self.worker, args = (queue, self.model_class_list[i], self.init_args_list[i], self.method_name_list[i], unit_iteration, self.infer_args_list[i]), self.num_iteration_list[i])
-                procs.append(p)
-                p.start()
+                new_process =  mp.Process(target = self.worker, args = (queue, self.model_class_list[i], self.init_args_list[i], 
+                self.method_name_list[i], unit_iteration, self.infer_args_list[i], self.num_iteration_list[i]))
+                procs.append(new_process)
+                new_process.start()
 
         for proc in procs:
             proc.join()
         
         file = open(self.file_path, 'w')
-        while queue.empty() = False:
-            file.write(queue.pop())
+        while queue.empty() == False:
+            file.write(queue.get())
             file.write("\n")
 
 
